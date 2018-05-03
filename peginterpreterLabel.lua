@@ -51,6 +51,12 @@ local function rep_symb (p)
 end
 
 function addlab_aux (g, p, seq, flw)
+  --io.write(p.kind .. " add_lab_aux: ")
+  --for k, v in pairs(flw) do
+  --  io.write(k .. ' ')
+  --end
+  --if flw[''] then io.write('empty') end
+  --io.write('\n')
 	if (p.kind == 'var' or p.kind == 'char' or p.kind == 'any') and seq then
     if p.kind == 'var' and matchEmpty(g, p) then
 			return p
@@ -61,15 +67,15 @@ function addlab_aux (g, p, seq, flw)
 		if seq then
 			if p.p1.kind == 'ord' then
 				local k = calck(g, p.p1.p2, calck(g, p.p2, flw))
-				if disjoint(calcfirst(g, p.p1.p1), k) then
+				if disjoint(calcfirst(p.p1.p1), k) then
 				--if disjoint(calcfirst(g, p.p1.p1), calcfirst(g, p.p1.p2)) then
-					print("con ord1", p.p1.p1.kind, p.p1.p2.kind, p.p2.kind)
 					return makecon(addlab_aux(g, p.p1, seq, k), addlab_aux(g, p.p2, seq, flw))
 				else
-					print("con ord2", p.p1.p1.kind, p.p1.p2.kind, p.p2.kind)
 					return makecon(adderror(p.p1, flw), addlab_aux(g, p.p2, seq, flw)) --TODO: flw ou k em adderror?
 				end
 			else
+        --local tmp = calck(g, p.p2, flw)
+        --print("con else seq", p.p1.kind, p.p2.kind, tmp[')'], tmp['X'])
 				return makecon(addlab_aux(g, p.p1, seq, calck(g, p.p2, flw)), addlab_aux(g, p.p2, seq, flw))
 			end
     elseif p.p1.kind == 'star' then
@@ -85,13 +91,13 @@ function addlab_aux (g, p, seq, flw)
 		if seq then --and p.p2.kind ~= 'empty' then -- FIRST(p1) \cap FIRST(p2) = \empty
 			return adderror(makeord(p1, p2), flw)	
 		--elseif not seq and disjoint(calcfirst(g, p.p1), calcfirst(g, p.p2)) then
-		elseif disjoint(calcfirst(g, p.p1), calck(g, p.p2, flw)) then
+		elseif disjoint(calcfirst(p.p1), calck(g, p.p2, flw)) then
 			return makeord(p1, p2)
 		else
 			return p
 		end
 	--elseif (p.kind == 'star' or p.kind == 'opt') and seq and disjoint(calcfirst(g, p.p1), flw) then
-	elseif (p.kind == 'star' or p.kind == 'opt' or p.kind == 'plus') and disjoint(calcfirst(g, p.p1), flw) then
+	elseif (p.kind == 'star' or p.kind == 'opt' or p.kind == 'plus') and disjoint(calcfirst(p.p1), flw) then
 		local newp
     --if seq then
     if true then
@@ -122,8 +128,7 @@ function addlab (g, flw, rules)
 	local newg = {}
 	ierr = 1
 	for i, v in ipairs(rules) do
-		--print("addlab", k)
-		newg[v] = addlab_aux(g, g[v], false, flw[v], v)
+		newg[v] = addlab_aux(g, g[v], false, flw[v])
 	end
 	return newg
 end
@@ -300,7 +305,8 @@ for _, e in ipairs(t) do
 	--printg(g)
 	printg(compile.turnleft(g), rules)
 
-	local flw = first.calcfollow(g, e.s)
+  local fst = first.calcFst(g)
+	local flw = first.calcFlw(g, e.s)
 	print("\nFOLLOW")
 	first.printfollow(g)	
 	
