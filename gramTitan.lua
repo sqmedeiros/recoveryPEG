@@ -35,7 +35,7 @@ entry {
   e8              <-  <e9>  ('..'  <e8>)*
   e9              <-  <e10> (('+' / '-') <e10>)*
   e10             <-  <e11> (('*' / '%%' / '/' / '//') <e11>)*
-  e11             <-  ('not' / '#' / '-' / '~') <e12>
+  e11             <-  ('not' / '#' / '-' / '~')* <e12>
   e12             <-  <castexp> ('^' <e11>)? 
   suffixedexp     <-  <prefixexp> <expsuffix>+
   expsuffix       <-  <funcargs>  /  ':' <NAME> <funcargs>  /  '[' <exp> ']'  /  '.' <NAME>
