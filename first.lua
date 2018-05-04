@@ -80,17 +80,17 @@ local function set2choice (s)
 end
 
 
-local function matchEmpty (g, p)
+local function matchEmpty (p)
 	if p.kind == 'empty' or p.kind == 'star' or
      p.kind == 'not' or p.kind == 'and' or p.kind == 'opt' then 
 		return true
 	elseif p.kind == 'char' or p.kind == 'plus' or p.kind == 'any' then
 		return false
 	elseif p.kind == 'ord' then
-		return matchEmpty(g, p.p1) or matchEmpty(g, p.p2)
+		return matchEmpty(p.p1) or matchEmpty(p.p2)
 	elseif p.kind == 'con' then
-		if matchEmpty(g, p.p1) then
-			return matchEmpty(g, p.p2)
+		if matchEmpty(p.p1) then
+			return matchEmpty(p.p2)
 		else
 			return false
 		end
@@ -215,18 +215,18 @@ function calcfirst (p)
 end
 
 
-local function updateFollow (g, p, k)
+local function updateFollow (p, k)
 	if p.kind == 'var' then
     local v = p.v
     FOLLOW[v] = union(FOLLOW[v], k, true)
 	elseif p.kind == 'con' then
-		if p.p1.kind == 'var' and matchEmpty(g, p.p2) then
-			updateFollow(g, p.p1, k)
+		if p.p1.kind == 'var' and matchEmpty(p.p2) then
+			updateFollow(p.p1, k)
 		end
-    updateFollow(g, p.p2, k)
+    updateFollow(p.p2, k)
 	elseif p.kind == 'ord' then
-		updateFollow(g, p.p1, k)
-		updateFollow(g, p.p2, k)
+		updateFollow(p.p1, k)
+		updateFollow(p.p2, k)
 	end
 end
 
@@ -244,7 +244,7 @@ function calck (g, p, k)
 		local k2 = calck(g, p.p2, k)
 		return calck(g, p.p1, k2)
 	elseif p.kind == 'var' then
-    if matchEmpty(g, p) then
+    if matchEmpty(p) then
 			return union(FIRST[p.v], k, true)
     else
 		  return FIRST[p.v]
@@ -259,7 +259,7 @@ function calck (g, p, k)
 		return union(calck(g, p.p1, k), k, true) 
   -- in case of a well-formed PEG a repetition does not match the empty string
 	elseif p.kind == 'star' then
-    updateFollow(g, p.p1, calcfirst(p, {}))
+    updateFollow(g, p.p1, calcfirst(p))
     --if p.p1.kind == 'var' then
     --  local v = p.p1.v
 		--	FOLLOW[v] = union(FOLLOW[v], calcfirst(g, g[v], {}), true)
@@ -267,7 +267,7 @@ function calck (g, p, k)
 		return union(calck(g, p.p1, k), k, true)
 	elseif p.kind == 'plus' then
     --return calck(g, p.p1, k)
-    updateFollow(g, p.p1, calcfirst(p, {}))
+    updateFollow(g, p.p1, calcfirst(p))
     --[[if p.p1.kind == 'var' then
       local v = p.p1.v
 			FOLLOW[v] = union(FOLLOW[v], calcfirst(g, g[v], {}), true)
@@ -317,15 +317,13 @@ end
 
 
 local function calcFlwAux (p, flw)
-  --print('FlwAux', p.kind, flw[empty], p.v)
   if p.kind == 'var' then
     FOLLOW[p.v] = union(FOLLOW[p.v], flw)
   elseif p.kind == 'con' then
     calcFlwAux(p.p2, flw)
     local k = calcfirst(p.p2)
-    --assert(not k[empty] == not matchEmpty({}, p.p2), tostring(k[empty]) .. ' ' .. tostring(matchEmpty({},p.p2)) .. ' ' .. writepeg(p.p2, p.p2.kind == 'con'))
-    if matchEmpty({}, p.p2) then
-    --TODO: matchEmpty retorna verdadeiro para !p1, o que implica que !p1 p2  casa a cadeia vazia (rever definicao)
+    assert(not k[empty] == not matchEmpty(p.p2), tostring(k[empty]) .. ' ' .. tostring(matchEmpty(p.p2)) .. ' ' .. writepeg(p.p2, p.p2.kind == 'con'))
+    if matchEmpty(p.p2) then
     --if k[empty] then
       calcFlwAux(p.p1, union(k, flw, true))
     else

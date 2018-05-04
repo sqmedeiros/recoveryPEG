@@ -1,0 +1,105 @@
+Entre [] comento mudanças na saída após mudar o algoritmo.
+
+
+program         <-  Ok+ (erro relacionado a '*')
+
+toplevelfunc    <-  Anotou 'function' indevidamente. A escolha entre 'toplevelfunc' e 'toplevelvar' em 'program' não é LL(1) [Ok: a função 'matchEmpty' não estava retornando verdadeiro para 'p?'. Com essa mudança, 'function' não foi mais anotado pois é precedida por expressão 'p?'.]
+                    Não precisa anotar 'paramlist', 'rettypeopt' e 'block' que casam a cadeia vazia. [Ok]
+
+toplevelvar     <-  Anotou 'decl' indevidamente. A escolha entre 'toplevelfunc' e 'toplevelvar' em 'program' não é LL(1) [Ok, mesmo caso de toplevelvar]
+                   
+toplevelrecord  <-  Ok
+
+localopt        <-  Ok [Ok+, sempre gera predicado pra repetições]. Problema: ao anotar essa regra, como ela é usada no início de toplevelval e toplevelfunc, um erro é lançado. Rever o algoritmo para só anotar uma repetição p* como p*^l quando já tiver casado um prefixo não vazio antes, ou relatar o erro ao comentar o algoritmo no artigo. Ver implicações da mudança. Causa problema com 'import' x 'foreign'
+
+import          <-  Problema. Com a regra 'foreign', a regra 'import' tem um predicado !foreign antes de tentar casar IMPORT. O predicado foi colocado durante a anotação manual da gramática, e não faz parte da BNF original. Diferença: o algoritmo anota a escolha, enquanto a anotação manual anotou a segunda alternativa da escolha.
+
+
+foreign         <- Ok. Diferença: o algoritmo anota a escolha, enquanto a anotação manual anotou a segunda alternativa da escolha.
+
+rettypeopt      <-  Não anotou 'rettype'. Por quê? A gramática original usa a informação de que 'toplevelfunc' usa 'rettypeopt'.
+                    Ver um exemplo com "A <- (a b)*" e com "A <- (a b)?". Devia anotar 'b'
+                    [Ok, agora anota p = '(a b)?' como '!FLW(p) [(a [b^l1])]^l2? 
+
+paramlist       <-  Não anotou o 'param' dentro da repetição. Mesma lógica de 'rettypeopt'. [Ok+, ver rettypeopt]
+
+param           <-  Ok
+
+decl            <-  Ok+. Anotou 'type' e também associou um erro à expressão dentro de '?'.
+
+decllist        <-  Ok+. Anotou 'decl' e também associou um erro à expressão dentro de '*'
+
+simpletype      <-  Ok
+
+typelist        <-  Ok+. Associou um erro à expressão dentro de '*' e outro à expressão do '?'
+
+rettype         <-  Não anotou, pois a escolha não é LL(1).
+
+type            <-  Não entendi por que na gramática original 'RARROW' não está anotada na primeira alternativa. Não anotou a segunda alternativa pois ela não é uma escolha LL(1) em relação à terceira alternativa.
+
+recordfields    <-  Ok. Podia mudar o algoritmo pra adicionar labels no caso de p+. [Não fiz a mudança ainda]. Fiz a mudança.
+
+recordfield     <-  Ok+. Associou um erro ao '?'. [Problema: devia computar NAME no FOLLOW de recordfield. Adicionei manualmente NAME em Err_053_Flw -> Resolvi, mudei a definição de FOLLOW pra tratar "A+", onde A é variável]
+
+block           <-  Ok. [Ok+ -> associou erro à repetição, ver 'rettypeopt']
+
+statement       <-  Não precisa anotar 'block', 'elseifstats', 'else' que casam a cadeia vazia. Anotou expressão dentro do '?' na alternativa do 'for'. Não anotou 'varlist' porque há conflito LL(1) com a alternativa que começa com 'suffixedexp'.
+
+elseifstats     <-  Ok
+
+elseifstat      <-  Ok. Não precisaria anotar 'block' [Ok, não está anotando mais]
+
+elseopt         <-  Ok. O algoritmo podia anotar a segunda expressão de (p1p2)? (nesse caso não fez diferença porque 'p2' era 'block', que casa a cadeia vazia. [Ok+, rótulo associado a '?']
+
+returnstat      <-  Ok+. Associou novos erros às expressões do '?'
+
+op1 .. op12     <- não fiz
+
+exp             <-  Somente castexp
+
+e1 .. e12       <-  não fiz
+
+suffixedexp     <-  Ok. Não anotou 'expsuffix+' porque o algoritmo atual não trata 'p+'. Não entendi porque  na gramática original essa expressão não está anotada. [Ainda falta fazer 'p+']. Entendi: 'suffixedexp' é usada em uma escolha em 'var', e essa escolha não é LL(1). Problema.
+
+expsuffix       <-  Ok
+
+prefixexp       <-  Ok
+
+castexp         <- Não anotou a primeira alternativa, pois há conflito LL(1)
+
+simpleexp       <-  não fiz (mas é uma regra sem rótulos na gramática original)
+
+var             <-  Ok. Podia lançar um erro se '!expsuffix' falhasse
+
+varlist         <-  Ok+. Nova anotação associado ao '*'
+
+funcargs        <-  Ok+. Novo erro associado a '?'
+
+explist         <-  Ok+. Novo erro associado a '+'
+
+initlist        <-  Ok+. Novo erro associado '?'
+
+fieldlist       <-  Ok. Acho que o algoritmo conseguiu escrever um padrão de erro similar ao da gramática.
+
+field           <-  Ok+. Não entendi porque 'exp' não está anotado na gramática original. [Entendi, a primeira expressão cada a cadeia vazia]
+
+fieldsep        <-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -23,6 +23,7 @@ local calck = first.calck
 local ierr
 local gerr
 
+
 local function adderror (p, flw)
   local s = 'Err_' .. string.format("%03d", ierr)
 	local pred = makenot(set2choice(flw))
@@ -31,15 +32,18 @@ local function adderror (p, flw)
 	return makeord(p, makethrow(s))
 end
 
+
 local function makeFailure (f, s)
 	return { f = f, s = s }
 end
+
 
 local function isSimple (p)
 	return p.kind == 'empty' or p.kind == 'char' or
          p.kind == 'any' or p.kind == 'var' or
 				 p.kind == 'throw'
 end
+
 
 local function rep_symb (p)
 	if p.kind == 'star' then
@@ -51,7 +55,8 @@ local function rep_symb (p)
 	end
 end
 
-function addlab_aux (g, p, seq, flw)
+
+local function addlab_aux (g, p, seq, flw)
   --io.write(p.kind .. " add_lab_aux: ")
   --for k, v in pairs(flw) do
   --  io.write(k .. ' ')
@@ -59,7 +64,7 @@ function addlab_aux (g, p, seq, flw)
   --if flw[''] then io.write('empty') end
   --io.write('\n')
 	if (p.kind == 'var' or p.kind == 'char' or p.kind == 'any') and seq then
-    if p.kind == 'var' and matchEmpty(g, p) then
+    if p.kind == 'var' and matchEmpty(p) then
 			return p
 		else
 			return adderror(p, flw)
@@ -81,7 +86,7 @@ function addlab_aux (g, p, seq, flw)
 			end
     elseif p.p1.kind == 'star' then
 			return makecon(addlab_aux(g, p.p1, seq, calck(g, p.p2, flw)), addlab_aux(g, p.p2, seq, flw))
-		elseif matchEmpty(g, p.p1) then
+		elseif matchEmpty(p.p1) then
 			return makecon(p.p1, addlab_aux(g, p.p2, false, flw))
 		else
 			return makecon(p.p1, addlab_aux(g, p.p2, true, flw))
@@ -125,7 +130,8 @@ function addlab_aux (g, p, seq, flw)
 	end
 end
 
-function addlab (g, flw, rules)
+
+local function addlab (g, flw, rules)
 	local newg = {}
 	ierr = 1
 	for i, v in ipairs(rules) do
@@ -134,7 +140,8 @@ function addlab (g, flw, rules)
 	return newg
 end
 
-function printg_aux (p)
+
+local function printg_aux (p)
 	if p.kind == 'empty' then
 		return "''"       -- empty.1
 	elseif p.kind == "char" then
@@ -186,7 +193,8 @@ function printg_aux (p)
 	end
 end
 
-function printg (g, rules)
+
+local function printg (g, rules)
 	if rules then
 		for i, v in ipairs(rules) do
 			print(v, "<-", printg_aux(g[v]))
@@ -203,7 +211,8 @@ function printg (g, rules)
 	end
 end
 
-function match(g, p, s, i)
+
+local function match(g, p, s, i)
 	--print("kind = ", p.kind)
 	if p.kind == 'empty' then
 		return i       -- empty.1
@@ -286,6 +295,7 @@ function match(g, p, s, i)
 		error ("Regra desconhecida: " .. tostring(p))	
 	end
 end
+
 
 local t = {}
 function entry(e) 
