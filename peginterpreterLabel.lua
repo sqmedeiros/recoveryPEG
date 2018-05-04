@@ -19,6 +19,7 @@ local calcfirst = first.calcfirst
 local disjoint = first.disjoint
 local set2choice = first.set2choice
 local matchEmpty = first.matchEmpty
+local calck = first.calck
 local ierr
 local gerr
 

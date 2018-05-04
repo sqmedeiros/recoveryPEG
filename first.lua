@@ -6,22 +6,8 @@ local empty = ''
 local calcf
 local makelit = compile.makelit
 local makeord = compile.makeord
-local printfirst
-LOOKAHEAD = 1
+local printfirst, calcfirst, calck
 
-math.randomseed(os.time())
-
-local function newvar (p, k)
-	return p.v .. sep .. k.v	
-end
-
-local function getvar ()
-	local s
-	repeat
-		s = 'v' .. math.random(1, 1000)
-	until FOLLOW[s] == nil
-	return s
-end
 
 local function disjoint (s1, s2)
 	for k, _ in pairs(s1) do
@@ -32,21 +18,21 @@ local function disjoint (s1, s2)
 	return true
 end
 
+
 local function equalSet (s1, s2)
   for k, _ in pairs(s1) do
     if not s2[k] then
-      --print("Nao achei em 2 ", k)
       return false
     end
   end
   for k, _ in pairs(s2) do
-    --print("Nao achei em 1 ", k)
     if not s1[k] then
       return false
     end
   end
   return true
 end
+
 
 local function union (s1, s2, notEmpty)
 	local s3 = {}
@@ -69,33 +55,6 @@ local function union (s1, s2, notEmpty)
 	return s3, eq
 end
 
-local function concatfirst (s1, s2)
-	local k
-	if next(s2) == nil then
-		return s1
-	end
-	if next(s1) == nil then
-		return s2
-	end
-	if LOOKAHEAD == nil then
-		k = 1
-	else
-		k = LOOKAHEAD
-	end
-	local s3 = {}
-	for x, _ in pairs(s1) do
-		if #x >= k then
-			s3[x] = true
-		else 
-			for y, _ in pairs(s2) do
-				--local z = string.sub(x .. y, 1, k)
-        local z = x .. y
-				s3[z] = true
-			end
-		end
-	end
-	return s3
-end	
 
 local function sortset(s)
   local r = {}
@@ -105,6 +64,7 @@ local function sortset(s)
 	table.sort(r)
 	return r
 end
+
 
 local function set2choice (s)
 	local p
@@ -118,6 +78,7 @@ local function set2choice (s)
 	end	
 	return p
 end
+
 
 local function matchEmpty (g, p)
 	if p.kind == 'empty' or p.kind == 'star' or
@@ -140,17 +101,8 @@ local function matchEmpty (g, p)
 	end
 end
 
--- returns true if A is a subset of B
-local function issubset (A, B)
-	for k, _ in pairs(A) do
-		if B[k] == nil then
-			return false
-		end
-	end
-	return true
-end
 
-function writepeg (p, iscon)
+local function writepeg (p, iscon)
 	if p.kind == 'char' then
 		return "'" .. p.v .. "'"
 	elseif p.kind == 'empty' then
@@ -184,7 +136,8 @@ function writepeg (p, iscon)
 	end
 end
 
-function makepeg (p)
+
+local function makepeg (p)
 	if p.kind == 'char' then
 		return lpeg.P(p.v)
 	elseif p.kind == 'empty' then
@@ -215,6 +168,7 @@ local function printfollow (g)
 	end
 end
 
+
 function printfirst (t)
 	local s = ''
 	for k, _ in pairs(t) do
@@ -223,27 +177,6 @@ function printfirst (t)
 	print(s) 
 end
 
-local function allhavesizek(s)
-	if next(s) == nil then
-		return false
-	end
-	for k, _ in pairs(s) do
-		if #k < LOOKAHEAD then
-			return false
-		end
-	end
-	return true
-end
-
-function tmpaux (t)
-  local s = 'First:'
-  for k, v in pairs(t) do
-    local x = k
-    if x == '' then x = 'empty' end
-    s = s .. ' ' .. x
-  end
-  return s
-end
 
 function calcfirst (p)
 	if p.kind == 'empty' then
@@ -281,7 +214,8 @@ function calcfirst (p)
 	end
 end
 
-function updateFollow (g, p, k)
+
+local function updateFollow (g, p, k)
 	if p.kind == 'var' then
     local v = p.v
     FOLLOW[v] = union(FOLLOW[v], k, true)
@@ -301,7 +235,7 @@ function calck (g, p, k)
 	if p.kind == 'empty' then
 		return k
 	elseif p.kind == 'char' then
-		return concatfirst({ [p.v]=true }, k)
+		return { [p.v]=true }
 	elseif p.kind == 'ord' then
 		local k1 = calck(g, p.p1, k)
 		local k2 = calck(g, p.p2, k)
@@ -318,7 +252,7 @@ function calck (g, p, k)
 	elseif p.kind == 'throw' then
 		return k
 	elseif p.kind == 'any' then
-		return concatfirst({ ['.']=true }, k)
+		return { ['.']=true }
 	elseif p.kind == 'not' then
 		return k 
 	elseif p.kind == 'opt' then
@@ -345,20 +279,6 @@ function calck (g, p, k)
 	end
 end
 
-local function initfollow (g, init)
-	FOLLOW = {}
-	for k, v in pairs(g) do
-		FOLLOW[k] = { }
-	end
-	FOLLOW[init] = { ['$'] = true }
-end
-
-function calcfollow (g, init)
-	initfollow(g, init)
-	calck(g, g[init], { [string.rep('$', LOOKAHEAD)] = true})
-	return FOLLOW
-end
-
 
 local function initFst (g)
   FIRST = {}
@@ -368,7 +288,7 @@ local function initFst (g)
 end
 
 
-function calcFst (g)
+local function calcFst (g)
   local update = true
   local equal
   initFst(g)
@@ -422,7 +342,7 @@ local function calcFlwAux (p, flw)
 end
 
 
-function calcFlw (g, init)
+local function calcFlw (g, init)
   local update = true
   initFlw(g, init)
 
@@ -452,7 +372,6 @@ return {
   calcFlw = calcFlw,
   calcFst = calcFst,
 	calcfirst = calcfirst,
-	calcfollow = calcfollow,
 	printfollow = printfollow,
 	disjoint = disjoint,
 	set2choice = set2choice,
