@@ -106,7 +106,8 @@ local function addlab_aux (g, p, seq, flw)
 	elseif (p.kind == 'star' or p.kind == 'opt' or p.kind == 'plus') and disjoint(calcfirst(p.p1), flw) then
 		local newp
     --if seq then
-    if true then
+    if false then
+    --if true then
       local p1 = addlab_aux(g, p.p1, false, flw)
       local s = 'Err_' .. string.format("%03d", ierr) .. '_Flw'
       gerr[s] = set2choice(flw)

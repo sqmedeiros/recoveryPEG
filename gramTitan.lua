@@ -2,10 +2,16 @@ entry {
 	g = [[
   program         <-  <SKIP>* (<toplevelfunc>  /  <toplevelvar>  /  <toplevelrecord>  /  <import> / <foreign>)* !.
   toplevelfunc    <-  <localopt> 'function' <NAME> '(' <paramlist> ')' <rettypeopt> <block> 'end'
-  toplevelvar     <-  <localopt> <decl> '=' !('import' / 'foreign') <exp>
+  ]]--predicate in 'toplevalvar' is related to the use of labels
+  --toplevelvar     <-  <localopt> <decl> '=' !('import' / 'foreign') <exp>
+  ..[[
+  toplevelvar     <-  <localopt> <decl> '=' <exp>
   toplevelrecord  <-  'record' <NAME> <recordfields> 'end'
   localopt        <-  'local'?
-  import          <-  'local' <NAME> '=' !'foreign' 'import' ('(' <STRINGLIT> ')' / <STRINGLIT>)
+  ]]--predicate in 'import' is related to the use of labels
+  --import          <-  'local' <NAME> '=' !'foreign' 'import' ('(' <STRINGLIT> ')' / <STRINGLIT>)
+  ..[[
+  import          <-  'local' <NAME> '=' 'import' ('(' <STRINGLIT> ')' / <STRINGLIT>)
   foreign         <-  'local' <NAME> '=' 'foreign' ('(' <STRINGLIT> ')' / <STRINGLIT>)
   rettypeopt      <-  (':' <rettype>)?
   paramlist       <-  (<param> (',' <param>)*)?
@@ -47,7 +53,9 @@ entry {
   funcargs        <-  '(' <explist>? ')'  /  <initlist>  /  <STRINGLIT>
   explist         <-  <exp> (',' <exp>)*
   initlist        <-  '{' <fieldlist>? '}' 
-  fieldlist       <-  <field> (<fieldsep> <field>)* <fieldsep>?
+  ]]--predicate in 'fieldlist' is related to the use of labels
+  --fieldlist       <-  <field> (<fieldsep> (<field> / !'}' %ExpFieldList)* <fieldsep>?
+  ..[[fieldlist       <-  <field> (<fieldsep> <field>)* <fieldsep>?
   field           <-  (<NAME> '=')? <exp>
   fieldsep        <-  ';' / ','
   STRINGLIT       <-  '"' (!'"' .)* '"'
