@@ -52,7 +52,7 @@ elseopt         <-  Ok
 
 returnstat      <-  Ok
 
-op1 .. op12     <-  não fiz
+op1 .. op12     <-  Usei o operador direto em e1 .. e12
 
 exp             <-  Ok
 
