@@ -2,7 +2,7 @@ Mudanças na gramática, usando o algoritmo que não anota uma repetição p*
 como (!FOLLOW(p) p / %{Erro}), mas anota p 
 
 O algoritmo que anota produz um melhor resultado assumindo que a escolha é associativa à esquerda.
-
+TODO: verificar e mostrar exemplos.
 
 program         <-  Ok
 

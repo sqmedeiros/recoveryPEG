@@ -92,15 +92,17 @@ local function addlab_aux (g, p, seq, flw)
 			return makecon(p.p1, addlab_aux(g, p.p2, true, flw))
 		end
 	elseif p.kind == 'ord' then
-		local p1 = addlab_aux(g, p.p1, false, flw)
-		local p2 = addlab_aux(g, p.p2, false, flw)		
+    local flagDisjoint = disjoint(calcfirst(p.p1), calck(g, p.p2, flw))
+		local p1, p2 = p.p1, p.p2
+    if flagDisjoint then
+      p1 = addlab_aux(g, p.p1, false, flw)
+		  p2 = addlab_aux(g, p.p2, false, flw)
+    end
 		if seq then --and p.p2.kind ~= 'empty' then -- FIRST(p1) \cap FIRST(p2) = \empty
 			return adderror(makeord(p1, p2), flw)	
 		--elseif not seq and disjoint(calcfirst(g, p.p1), calcfirst(g, p.p2)) then
-		elseif disjoint(calcfirst(p.p1), calck(g, p.p2, flw)) then
-			return makeord(p1, p2)
 		else
-			return p
+      return makeord(p1, p2)
 		end
 	--elseif (p.kind == 'star' or p.kind == 'opt') and seq and disjoint(calcfirst(g, p.p1), flw) then
 	elseif (p.kind == 'star' or p.kind == 'opt' or p.kind == 'plus') and disjoint(calcfirst(p.p1), flw) then
