@@ -93,11 +93,11 @@ local function addlab_aux (g, p, seq, flw)
 		end
 	elseif p.kind == 'ord' then
     local flagDisjoint = disjoint(calcfirst(p.p1), calck(g, p.p2, flw))
-		local p1, p2 = p.p1, p.p2
+		local p1 = p.p1
     if flagDisjoint then
       p1 = addlab_aux(g, p.p1, false, flw)
-		  p2 = addlab_aux(g, p.p2, false, flw)
     end
+		local p2 = addlab_aux(g, p.p2, false, flw)
 		if seq then --and p.p2.kind ~= 'empty' then -- FIRST(p1) \cap FIRST(p2) = \empty
 			return adderror(makeord(p1, p2), flw)	
 		--elseif not seq and disjoint(calcfirst(g, p.p1), calcfirst(g, p.p2)) then
