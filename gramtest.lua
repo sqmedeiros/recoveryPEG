@@ -27,3 +27,9 @@ entry {
 	s = "A",
 	input = {}
 }
+
+entry {
+	g = [[ A <- 'c' ('a''a' / 'b''b' / '') 'b']],
+	s = "A",
+	input = {}
+}

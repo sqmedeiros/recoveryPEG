@@ -65,9 +65,9 @@ local function addlab_aux (g, p, seq, flw)
 				local k = calck(g, p.p1.p2, calck(g, p.p2, flw))
 				if disjoint(calcfirst(p.p1.p1), k) then
 				--if disjoint(calcfirst(g, p.p1.p1), calcfirst(g, p.p1.p2)) then
-					return makecon(addlab_aux(g, p.p1, seq, k), addlab_aux(g, p.p2, seq, flw))
+					return makecon(addlab_aux(g, p.p1, seq, calck(g, p.p2, flw)), addlab_aux(g, p.p2, seq, flw))
 				else
-					return makecon(adderror(p.p1, flw), addlab_aux(g, p.p2, seq, flw)) --TODO: flw ou k em adderror?
+					return makecon(adderror(p.p1, calck(g, p.p2, flw)), addlab_aux(g, p.p2, seq, flw))
 				end
 			else
         --local tmp = calck(g, p.p2, flw)
