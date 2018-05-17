@@ -159,8 +159,9 @@ local function printfollow (g)
 	for k, v in pairs(g) do
 		local s = k .. ':'
 		local fst = calcfirst(v)
-		for k, _ in pairs(FOLLOW[k]) do
-			s = s .. ' ' .. k
+    local r = sortset(FOLLOW[k])
+		for _, v1 in ipairs(r) do
+			s = s .. ' ' .. v1
 		end
 		print(s)
     print("FIRST")
