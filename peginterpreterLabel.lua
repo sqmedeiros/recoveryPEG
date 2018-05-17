@@ -57,18 +57,8 @@ end
 
 
 local function addlab_aux (g, p, seq, flw)
-  --io.write(p.kind .. " add_lab_aux: ")
-  --for k, v in pairs(flw) do
-  --  io.write(k .. ' ')
-  --end
-  --if flw[''] then io.write('empty') end
-  --io.write('\n')
-	if (p.kind == 'var' or p.kind == 'char' or p.kind == 'any') and seq then
-    if p.kind == 'var' and matchEmpty(p) then
-			return p
-		else
-			return adderror(p, flw)
-		end
+	if ((p.kind == 'var' and not matchEmpty(p)) or p.kind == 'char' or p.kind == 'any') and seq then
+    return adderror(p, flw)
 	elseif p.kind == 'con' then
 		if seq then
 			if p.p1.kind == 'ord' then
