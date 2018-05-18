@@ -60,27 +60,8 @@ local function addlab_aux (g, p, seq, flw)
 	if ((p.kind == 'var' and not matchEmpty(p)) or p.kind == 'char' or p.kind == 'any') and seq then
     return adderror(p, flw)
 	elseif p.kind == 'con' then
-		if seq then
-			if p.p1.kind == 'ord' then
-				local k = calck(g, p.p1.p2, calck(g, p.p2, flw))
-				if disjoint(calcfirst(p.p1.p1), k) then
-				--if disjoint(calcfirst(g, p.p1.p1), calcfirst(g, p.p1.p2)) then
-					return makecon(addlab_aux(g, p.p1, seq, calck(g, p.p2, flw)), addlab_aux(g, p.p2, seq, flw))
-				else
-					return makecon(adderror(p.p1, calck(g, p.p2, flw)), addlab_aux(g, p.p2, seq, flw))
-				end
-			else
-        --local tmp = calck(g, p.p2, flw)
-        --print("con else seq", p.p1.kind, p.p2.kind, tmp[')'], tmp['X'])
-				return makecon(addlab_aux(g, p.p1, seq, calck(g, p.p2, flw)), addlab_aux(g, p.p2, seq, flw))
-			end
-    elseif p.p1.kind == 'star' then
-			return makecon(addlab_aux(g, p.p1, seq, calck(g, p.p2, flw)), addlab_aux(g, p.p2, seq, flw))
-		elseif matchEmpty(p.p1) then
-			return makecon(p.p1, addlab_aux(g, p.p2, false, flw))
-		else
-			return makecon(p.p1, addlab_aux(g, p.p2, true, flw))
-		end
+		local matchToken = seq or not matchEmpty(p.p1)
+		return makecon(addlab_aux(g, p.p1, seq, calck(g, p.p2, flw)), addlab_aux(g, p.p2, matchToken, flw))
 	elseif p.kind == 'ord' then
     local flagDisjoint = disjoint(calcfirst(p.p1), calck(g, p.p2, flw))
 		local p1 = p.p1
