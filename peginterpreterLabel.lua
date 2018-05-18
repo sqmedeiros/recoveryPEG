@@ -60,8 +60,8 @@ local function addlab_aux (g, p, seq, flw)
 	if ((p.kind == 'var' and not matchEmpty(p)) or p.kind == 'char' or p.kind == 'any') and seq then
     return adderror(p, flw)
 	elseif p.kind == 'con' then
-		local matchToken = seq or not matchEmpty(p.p1)
-		return makecon(addlab_aux(g, p.p1, seq, calck(g, p.p2, flw)), addlab_aux(g, p.p2, matchToken, flw))
+		local newseq = seq or not matchEmpty(p.p1)
+		return makecon(addlab_aux(g, p.p1, seq, calck(g, p.p2, flw)), addlab_aux(g, p.p2, newseq, flw))
 	elseif p.kind == 'ord' then
     local flagDisjoint = disjoint(calcfirst(p.p1), calck(g, p.p2, flw))
 		local p1 = p.p1
